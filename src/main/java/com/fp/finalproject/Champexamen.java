@@ -41,6 +41,34 @@ public class Champexamen extends Application {
         stage.setScene(scene);
         stage.show();
 
+    private HBox buildBanner(){
+        Image imageObj = new Image("/logo.png");
+        ImageView imageViewLogo = new ImageView(imageObj);
+        imageObj = new Image("/banner.png");
+        ImageView imageViewBanner = new ImageView(imageObj);
+        imageViewBanner.setPreserveRatio(true);     imageViewLogo.setPreserveRatio(true);
+        imageViewLogo.setFitHeight(100);
+        imageViewBanner.setFitHeight(100);
+        HBox hBox = new HBox(imageViewBanner, imageViewLogo);
+        return hBox;
+    }
+
+    private HBox buildFooter() {
+        Button clear = new Button ("Clear");
+        Button save = new Button ("Save");
+        Button submit = new Button ("Submit");
+        HBox hbox = new HBox(clear, save, submit);
+        hbox.setAlignment(Pos.CENTER);
+        return hbox;
+    }
+    private MenuBar buildMenuBar() {
+        Menu menuFile = new Menu("File");
+        Menu menuEdit = new Menu("Edit");
+        Menu menuQuiz = new Menu("Quiz");
+        Menu menuExtras = new Menu("Extras");
+        Menu menuAbout = new Menu("About");
+        MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuQuiz, menuExtras, menuAbout);
+        return menuBar;
     }
 
     public static void main(String[] args) {
