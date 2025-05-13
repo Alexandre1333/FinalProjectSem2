@@ -27,9 +27,10 @@ public class Champexamen extends Application {
         myBank.readMCQ("src/main/resources/mcq.txt");
         myBank.readTFQ("src/main/resources/tfq.txt");
 
-        int[] indices = {11, 0, 5};
+        int[] indices = {11, 0, 5, 2, 12, 3, 7, 8, 4};
 
         LinkedList<Question> examQuestionList = myBank.selectRandQuestions(indices);
+        System.out.println("Selected questions for exam: " + examQuestionList.size());
         myExam = new Exam(examQuestionList);
         myExam.printAllQuestions();
 
@@ -39,15 +40,16 @@ public class Champexamen extends Application {
         hBoxGrade.setAlignment(Pos.CENTER);
 
         VBox[] vBoxesQuestions = buildQuestionVBoxes();
-        VBox questionsContainer = new VBox(vBoxesQuestions);
-        ScrollPane scrollPane = new ScrollPane(questionsContainer);
-        scrollPane.setFitToWidth(true);
 
         root.getChildren().add(menuBarMain);
         root.getChildren().add(buildBanner());
         root.getChildren().add(hBoxGrade);
         root.getChildren().add(new Separator());
-        root.getChildren().addAll(scrollPane);
+        VBox vBoxAllQuestions = new VBox(20);
+        vBoxAllQuestions.getChildren().addAll(vBoxesQuestions);
+        ScrollPane scrollPaneForQuestions = new ScrollPane(vBoxAllQuestions);
+
+        root.getChildren().addAll(scrollPaneForQuestions);
         root.getChildren().add(new Separator());
         root.getChildren().add(buildFooter());
 
@@ -63,7 +65,8 @@ public class Champexamen extends Application {
         VBox[] vBoxes = new VBox[numberOfQuestionsInExam];
 
         for (int i = 0; i < numberOfQuestionsInExam; i++) {
-            Question question = myExam.getQuestion(i + 1);
+            int qNumber = i+1;
+            Question question = myExam.getQuestion(qNumber);
             if (question.getQuestionType() == QuestionType.TFQ) {
                 vBoxes[i] = buildTrueFalseQ(i + 1, (TFQuestion) question);
             } else { //it is MCQ
@@ -78,6 +81,7 @@ public class Champexamen extends Application {
     }
 
         public VBox buildTrueFalseQ(int questionNumber, TFQuestion tfQuestion1) {
+        String qText = String.format("Q%d. %s", questionNumber, tfQuestion1.getQuestionText().trim());
         Label labelQuestion = new Label("Q" + questionNumber + ": " + tfQuestion1.getQuestionText());
         RadioButton radioButtonTrue = new RadioButton("True");
         RadioButton radioButtonFalse = new RadioButton("False");
@@ -86,30 +90,46 @@ public class Champexamen extends Application {
         radioButtonTrue.setToggleGroup(toggleGroup);
         radioButtonFalse.setToggleGroup(toggleGroup);
 
-        radioButtonTrue.setOnAction(e -> {
-            if (radioButtonTrue.isSelected()) radioButtonFalse.setSelected(false);;
-            setQuestionAnswer(questionNumber, "true");
-        });
+            radioButtonTrue.setOnAction(e -> {
+                recordAnswer(questionNumber, "T");
+                setQuestionAnswer(questionNumber, "true");
+            });
 
-        radioButtonFalse.setOnAction(e -> {
-            if (radioButtonFalse.isSelected()) radioButtonTrue.setSelected(false);;
-            setQuestionAnswer(questionNumber, "false");
-        });
+            radioButtonFalse.setOnAction(e -> {
+                recordAnswer(questionNumber, "F");
+                setQuestionAnswer(questionNumber, "false");
+            });
 
-        HBox hBox = new HBox(10,radioButtonTrue, radioButtonFalse);
+            HBox hBox = new HBox(10,radioButtonTrue, radioButtonFalse);
         VBox vBox = new VBox(5,labelQuestion, hBox);
         return vBox;
     }
 
+    private void recordAnswer(int n, String answer) {
+        this.myExam.addSubmittedAnswer(n, answer);
+        System.out.println( n + " -> " + this.myExam.getSubmittedAnswers(n));
+    }
+
     public VBox buildMCQ(int questionNumber, MCQuestion mcQuestion) {
-        Label labelQuestionText = new Label(mcQuestion.getQuestionText());
-        VBox vBox = new VBox(labelQuestionText);
+        String qText = String.format("Q%d. %s", questionNumber, mcQuestion.getQuestionText().trim());
+        Label labelQuestionText = new Label(qText);
+        VBox vBox = new VBox(5,labelQuestionText);
         LinkedList<String> options = mcQuestion.getOptions();
         ToggleGroup toggleGroup = new ToggleGroup();
-        for (String s : options) {
-            RadioButton radioButton = new RadioButton(s);
+
+        String[] optionLetters = {"A","B","C","D","E","F","G"};
+
+        for (int i=0; i<options.size(); i++) {
+            String optionText = optionLetters[i]  + ". " + options.get(i);
+            RadioButton radioButton = new RadioButton(optionText);
             radioButton.setToggleGroup(toggleGroup);
             vBox.getChildren().add(radioButton);
+            int finalI = i;
+            radioButton.setOnAction(e -> {
+                recordAnswer(questionNumber, optionLetters[finalI]);
+                setQuestionAnswer(questionNumber, optionLetters[finalI]);
+
+            });
         }
         return vBox;
     }
@@ -134,7 +154,7 @@ public class Champexamen extends Application {
 
         clear.setOnAction(e -> clearExamAnswers());
         save.setOnAction(e -> saveExamAnswers());
-        submit.setOnAction(new SubmitEventHandler());
+        submit.setOnAction(new SubmitEventHandler(this.myExam));
 
         HBox hBoxFooter = new HBox(10, clear, save, submit);
         hBoxFooter.setAlignment(Pos.CENTER);
@@ -192,20 +212,29 @@ public class Champexamen extends Application {
     }
 
     public class SubmitEventHandler implements EventHandler<ActionEvent> {
-        @Override
-        public void handle(ActionEvent event) {
-            int correctCount = 0;
+        private Exam examObj;
+        public SubmitEventHandler(Exam myExam) {
 
-            for (int i = 0; i < myExam.questions.size(); i++) {
-                Question q = myExam.getQuestion(i);
-                String submitted = submittedAnswers.get(i);
-                if (submitted != null && submitted.equalsIgnoreCase(q.getCorrectAnswer())) {
-                    correctCount++;
-                }
-            }
-            double grade = (double) correctCount / myExam.questions.size() * 100;
-            labelGrade.setText(String.format("Grade: %.2f", grade));
-            System.out.printf("Grade: %.2f\n", grade);
+
+            this.examObj = myExam;
+        }
+
+        @Override
+        public void handle(ActionEvent actionEvent){
+            System.out.println("Sumbit button clicked");
+            int numberOfQuestions = this.examObj.getQuestions().size();
+            int grade = 0;
+                    for (int i=1; i <= numberOfQuestions; i++){
+                        Question question = this.examObj.getQuestion(i);
+                        String correctAnswer = question.getCorrectAnswer();
+                        String submittedAnswer = this.examObj.getSubmittedAnswers(i);
+                        if (correctAnswer.equals(submittedAnswer)){
+                            grade = grade +1;
+                        }
+                    }
+            labelGrade.setText("Grade: " + grade + "/" + numberOfQuestions);
+            System.out.println("Debug: Grade = " + grade + "/9");
+
         }
     }
 }

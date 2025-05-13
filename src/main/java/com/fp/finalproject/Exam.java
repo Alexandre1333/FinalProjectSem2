@@ -46,6 +46,13 @@ public class Exam {
 
     public void setQuestions(HashMap<Integer, Question> questions) {
         this.submittedAnswers = new HashMap<>();
-        this.submittedAnswers.putAll(submittedAnswers);
+        this.questions.putAll(questions);
     }
+    public void addSubmittedAnswer(int questionNumber, String answer) {
+        if (submittedAnswers == null) {
+            submittedAnswers = new HashMap<>();
+        }
+        submittedAnswers.put(questionNumber, answer);
+    }
+
 }
