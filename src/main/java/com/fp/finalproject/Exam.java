@@ -26,7 +26,8 @@ public class Exam {
         }
     }
     public void clearQuestions(){
-        this.questions.clear();this.submittedAnswers.clear();
+        this.questions.clear();
+        this.submittedAnswers.clear();
     }
     public Question getQuestion(int i){
         return this.questions.get(i);

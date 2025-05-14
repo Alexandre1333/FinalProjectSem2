@@ -170,6 +170,8 @@ public class Champexamen extends Application {
 
     private void clearExamAnswers() {
         submittedAnswers.clear();
+        myExam.submittedAnswers.clear();
+        labelGrade.setText("Grade: ");
         System.out.println("All answers cleared.");
     }
 
