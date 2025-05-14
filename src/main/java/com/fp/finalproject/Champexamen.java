@@ -81,7 +81,6 @@ public class Champexamen extends Application {
     }
 
         public VBox buildTrueFalseQ(int questionNumber, TFQuestion tfQuestion1) {
-        String qText = String.format("Q%d. %s", questionNumber, tfQuestion1.getQuestionText().trim());
         Label labelQuestion = new Label("Q" + questionNumber + ": " + tfQuestion1.getQuestionText());
         RadioButton radioButtonTrue = new RadioButton("True");
         RadioButton radioButtonFalse = new RadioButton("False");
@@ -137,7 +136,7 @@ public class Champexamen extends Application {
     private HBox buildBanner() {
         Image imageObj = new Image("/logo.png");
         ImageView imageViewLogo = new ImageView(imageObj);
-        imageObj = new Image("/banner.png");
+        imageObj = new Image("/banner.gif");
         ImageView imageViewBanner = new ImageView(imageObj);
         imageViewBanner.setPreserveRatio(true);
         imageViewLogo.setPreserveRatio(true);
@@ -201,10 +200,23 @@ public class Champexamen extends Application {
 
         MenuItem mHelp = new MenuItem("Help Content");
         MenuItem mHelpAbout = new MenuItem("About App");
+        mHelpAbout.setOnAction(e -> showAboutAppWindow());
         menuAbout.getItems().addAll(mHelp, mHelpAbout);
 
         MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuQuiz, menuExtras, menuAbout);
         return menuBar;
+    }
+    private void showAboutAppWindow() {
+        Stage aboutStage = new Stage();
+        aboutStage.setTitle("About ChampExamen (R) application (C)");
+
+        Label infoLabel = new Label("ChampExamen (R) v1.0\nCreated by Alexandre And Dylan for Champlain College\nWinter 2025\n All rights reserved.");
+
+        VBox vbox = new VBox(infoLabel);
+        vbox.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(vbox, 400, 200);
+        aboutStage.setScene(scene);
+        aboutStage.show();
     }
 
     public static void main(String[] args) {

@@ -11,8 +11,7 @@ b. It loads an image named "images\terrier.jpg" and stores the image in the Imag
 c. It loads an image file named terrier.jpg which is found in the images folder on the user's C-drive.
 d. Nothing; it is not possible to include a path to a file when using the Image class.
 ANS: C
-22.	Assuming three ImageView objects named puppy, kitten, and bunny have been created, what does the following statement do?
-HBox hbox = new HBox(5, puppy, kitten, bunny);
+22.	Assuming three ImageView objects named puppy, kitten, and bunny have been created, what does the following statement do? HBox hbox = new HBox(5, puppy, kitten, bunny);
 a. The number 5 refers to the number of ImageView objects so there will be two empty spots for two more ImageView objects.
 b. There will be five pixels of space between the controls horizontally in the container.
 c. The controls will be displayed vertically with five pixels between them.
